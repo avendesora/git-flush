@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "git-flush"
-version = "0.1.4"
+version = "0.1.5"
 description = ""
 authors = ["Nathan Patton <npatton@gmail.com>"]
 readme = "README.md"
