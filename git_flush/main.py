@@ -25,6 +25,7 @@ def main(default_branch: str = "main", untracked_files: bool = True):
     # Check default branch
     try:
         repo.refs[default_branch]
+        this_is_a_test = "blah"
     except IndexError as e:
         raise BadParameter(f"{default_branch} is not a valid branch name") from e
 
