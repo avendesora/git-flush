@@ -10,9 +10,13 @@ from git import InvalidGitRepositoryError, Repo
 app = typer.Typer()
 
 
+_TRUTHY = ("true", "t", "1", "yes", "y")
+
 DEFAULT_BRANCH = os.getenv("GIT_FLUSH_DEFAULT_BRANCH", "main")
-UNTRACKED_FILES = os.getenv("GIT_FLUSH_UNTRACKED_FILES", True)
-DELETE_FEATURE_BRANCH = os.getenv("GIT_FLUSH_DELETE_FEATURE_BRANCH", False)
+UNTRACKED_FILES = os.getenv("GIT_FLUSH_UNTRACKED_FILES", "true").lower() in _TRUTHY
+DELETE_FEATURE_BRANCH = (
+    os.getenv("GIT_FLUSH_DELETE_FEATURE_BRANCH", "false").lower() in _TRUTHY
+)
 
 
 def _get_repo() -> Repo:
@@ -29,6 +33,9 @@ def main(
     version: Annotated[
         bool, typer.Option("--version", "-v", help="Display version")
     ] = False,
+    verbose: Annotated[
+        bool, typer.Option("--verbose", "-V", help="Display verbose output")
+    ] = False,
     default_branch: Annotated[
         str, typer.Option("--default-branch", "-b")
     ] = DEFAULT_BRANCH,
@@ -43,6 +50,11 @@ def main(
     if version:
         typer.echo(importlib.metadata.version("git-flush"))
         raise typer.Exit()
+
+    if verbose:
+        typer.echo(f"Default branch: {default_branch}")
+        typer.echo(f"Untracked files: {untracked_files}")
+        typer.echo(f"Delete feature branch: {delete_feature_branch}")
 
     current_directory = os.getcwd()
     repo = _get_repo()
