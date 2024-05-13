@@ -1,4 +1,5 @@
 import os
+from typing import Annotated
 
 import typer
 from click import BadParameter
@@ -6,6 +7,11 @@ from click import BadParameter
 from git import InvalidGitRepositoryError, Repo
 
 app = typer.Typer()
+
+
+DEFAULT_BRANCH = os.getenv("GIT_FLUSH_DEFAULT_BRANCH", "main")
+UNTRACKED_FILES = os.getenv("GIT_FLUSH_UNTRACKED_FILES", True)
+DELETE_FEATURE_BRANCH = os.getenv("GIT_FLUSH_DELETE_FEATURE_BRANCH", False)
 
 
 def _get_repo() -> Repo:
@@ -18,7 +24,17 @@ def _get_repo() -> Repo:
 
 
 @app.command()
-def main(default_branch: str = "main", untracked_files: bool = True):
+def main(
+    default_branch: Annotated[
+        str, typer.Option("--default-branch", "-b")
+    ] = DEFAULT_BRANCH,
+    untracked_files: Annotated[
+        bool, typer.Option("--untracked-files/--no-untracked-files", "-uf/-UF")
+    ] = UNTRACKED_FILES,
+    delete_feature_branch: Annotated[
+        bool, typer.Option("--delete-feature-branch/--no-delete-feature-branch", "-dfb/-DBF")
+    ] = DELETE_FEATURE_BRANCH,
+):
     current_directory = os.getcwd()
     repo = _get_repo()
 
@@ -58,7 +74,7 @@ def main(default_branch: str = "main", untracked_files: bool = True):
     typer.echo("Fetching all branches from remote")
     repo.git.fetch("--all")
 
-    if branch != "main":
+    if branch != "main" and delete_feature_branch:
         # Delete the original branch
         typer.echo(f"Deleting {branch}")
         repo.git.branch("-D", branch)
