@@ -1,4 +1,5 @@
 import os
+import importlib.metadata
 from typing import Annotated
 
 import typer
@@ -25,6 +26,9 @@ def _get_repo() -> Repo:
 
 @app.command()
 def main(
+    version: Annotated[
+        bool, typer.Option("--version", "-v", help="Display version")
+    ] = False,
     default_branch: Annotated[
         str, typer.Option("--default-branch", "-b")
     ] = DEFAULT_BRANCH,
@@ -32,16 +36,20 @@ def main(
         bool, typer.Option("--untracked-files/--no-untracked-files", "-uf/-UF")
     ] = UNTRACKED_FILES,
     delete_feature_branch: Annotated[
-        bool, typer.Option("--delete-feature-branch/--no-delete-feature-branch", "-dfb/-DBF")
+        bool,
+        typer.Option("--delete-feature-branch/--no-delete-feature-branch", "-dfb/-DBF"),
     ] = DELETE_FEATURE_BRANCH,
 ):
+    if version:
+        typer.echo(importlib.metadata.version("git-flush"))
+        raise typer.Exit()
+
     current_directory = os.getcwd()
     repo = _get_repo()
 
     # Check default branch
     try:
         repo.refs[default_branch]
-        this_is_a_test = "blah"
     except IndexError as e:
         raise BadParameter(f"{default_branch} is not a valid branch name") from e
 
