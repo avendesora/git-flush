@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "git-flush"
-version = "0.1.7"
+version = "0.1.8"
 description = "A CLI tool to clean up a local git repository after finishing work on a feature branch."
 authors = ["Nathan Patton <npatton@gmail.com>"]
 readme = "README.md"
